@@ -2,41 +2,23 @@
   <div>
     <v-app-bar
       color="deep-purple"
-      dense
     >
       <v-toolbar-title>My Todo App </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn icon>
-        <v-icon color="primary">mdi-heart</v-icon>
-      </v-btn>
-
-      <v-menu
-        left
-        bottom
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            v-bind="attrs"
-            v-on="on"
-            color="black"
-          >
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list>
-          <v-list-item
-            v-for="n in 5"
-            :key="n"
-            @click="() => {}"
-          >
-            <v-list-item-title>Option {{ n }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <div>
+        <v-select
+          v-model="language"
+          :items="languages"
+          label="Language"
+          outlined
+          dense
+          no-data-text="auto"
+          hide-details
+          @change="updateLocale"
+        ></v-select>
+      </div>
     </v-app-bar>
 
     <div class="container black">
@@ -47,18 +29,56 @@
 
 <script>
 import TodoLists from './TodoLists.vue';
-import {removeAuthToken, removeAuthUser} from '../auth';
+import {getAuthUser, getLocale, setLocale, removeLocale, removeAuthToken, removeAuthUser} from '../auth';
 
 export default {
   name: "AuthLayout",
+
   components: {
     TodoLists
+  },
+
+  data() {
+    return {
+      languages: [
+        {
+          "text": "English",
+          "value": 'en'
+        },
+        {
+          "text": "Bangla",
+          "value": 'bn'
+        }
+      ],
+
+      language: "",
+    }
+  },
+
+  created() {
+    const local = getLocale()
+    if(local) {
+      this.language = local
+    } else {
+      this.language = 'en'
+    }
   },
 
   methods: {
     logout() {
       removeAuthToken();
       removeAuthUser();
+      removeLocale();
+    },
+
+    updateLocale() {
+      const authUser = getAuthUser()
+      const user = JSON.parse(authUser)
+
+      this.$http.put(`/users/${user.id}`, {local: this.language})
+      .then((response) => {
+        setLocale(this.language)
+      })
     }
   }
 }

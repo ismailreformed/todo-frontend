@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import {setAuthToken, setAuthUser} from '../auth';
+import {setAuthToken, setLocale, setAuthUser} from '../auth';
 export default {
   data() {
     return {
@@ -38,6 +38,7 @@ export default {
         const user = JSON.stringify(response.data.data);
         setAuthUser(user);
         setAuthToken(response.data.token);
+        setLocale(user.local);
         this.$router.push('/')
       })
       .catch(error => {
