@@ -1,5 +1,6 @@
 <template>
-  <v-data-table
+  <div>
+    <v-data-table
     :headers="headers"
     :items="todos"
     sort-by="calories"
@@ -81,21 +82,34 @@
         </v-dialog>
       </v-toolbar>
     </template>
+
     <template v-slot:item.actions="{ item }">
-      <v-icon
-        small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        small
+     <v-btn
+       @click="editItem(item)"
+     >
+       <v-icon
+         small
+         left
+       >
+         mdi-pencil
+       </v-icon>
+       Edit
+     </v-btn>
+
+      <v-btn
         @click="deleteItem(item)"
       >
-        mdi-delete
-      </v-icon>
+        <v-icon
+          small
+          left
+        >
+          mdi-delete
+        </v-icon>
+        Delete
+      </v-btn>
+
     </template>
+
     <template v-slot:no-data>
       <v-btn
         color="primary"
@@ -105,6 +119,26 @@
       </v-btn>
     </template>
   </v-data-table>
+
+    <v-snackbar
+      v-model="snackbar"
+      top
+      centered
+    >
+      {{ text }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="pink"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
@@ -141,6 +175,8 @@ export default {
       text: '',
       user_id: null,
     },
+    snackbar: false,
+    text: ``,
   }),
 
   computed: {
@@ -191,11 +227,9 @@ export default {
     },
 
     deleteItemConfirm () {
-      this.$http.delete('/todos/' + editedItem.id)
+      this.$http.delete('/todos/' + this.editedItem.id)
         .then(() => {
           this.todos.splice(this.editedIndex, 1)
-          const index = this.todos.findIndex(el => el.id === this.editedItem.id)
-          this.todos.splice(index, 1)
         })
       this.closeDelete()
     },
@@ -224,16 +258,25 @@ export default {
 
       if (this.editedIndex > -1) {
         this.$http.put('/todos/' + this.editedItem.id, data)
-          .then(() => {
+          .then((response) => {
+            this.text = response.data.message
+            this.snackbar = true
             Object.assign(this.todos[this.editedIndex], this.editedItem)
+          })
+          .finally(() => {
+            this.close()
           })
       } else {
         this.$http.post('/todos', data)
           .then((response) => {
             this.todos.push(response.data.data)
+            this.text = response.data.message
+            this.snackbar = true
           })
+        .finally(() => {
+          this.close()
+        })
       }
-      this.close()
     },
   },
 }
