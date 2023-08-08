@@ -38,12 +38,22 @@
             </v-list>
           </v-menu>
         </v-app-bar>
+
+        <div class="container black">
+          <todo-lists></todo-lists>
+        </div>
       </div>
 </template>
 
 <script>
+import TodoLists from './TodoLists.vue';
+
 export default {
   name: 'Home',
+  components: {
+   TodoLists
+  },
+
   data () {
     return {
     }
