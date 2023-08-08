@@ -12,7 +12,7 @@ import { getAuthToken } from './auth';
 Vue.config.productionTip = false
 axios.defaults.withCredentials = true;
 
-const baseURL = 'http://localhost:80/api/'
+const baseURL = 'http://localhost:80/api'
 axios.defaults.baseURL = baseURL;
 
 axios.interceptors.request.use(config => {
@@ -42,7 +42,7 @@ Vue.prototype.baseURL = baseURL;
 
 Vue.use(Vuetify);
 
-const vuetify = new Vuetify();
+const vuetify = new Vuetify({});
 
 /* eslint-disable no-new */
 new Vue({

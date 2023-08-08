@@ -2,7 +2,7 @@
   <v-container>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card>
+        <v-card tile>
           <v-card-title class="text-center">Login</v-card-title>
           <v-card-text>
             <v-form>
@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { setAuthToken } from '../auth';
+import {setAuthToken, setAuthUser} from '../auth';
 export default {
   data() {
     return {
@@ -35,8 +35,9 @@ export default {
         password: this.password
       })
       .then((response) => {
-        console.log('logged in successful')
-        setAuthToken(response.data.data.token);
+        const user = JSON.stringify(response.data.data);
+        setAuthUser(user);
+        setAuthToken(response.data.token);
         this.$router.push('/')
       })
       .catch(error => {

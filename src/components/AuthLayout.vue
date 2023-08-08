@@ -47,7 +47,7 @@
 
 <script>
 import TodoLists from './TodoLists.vue';
-import { removeAuthToken } from '../auth';
+import {removeAuthToken, removeAuthUser} from '../auth';
 
 export default {
   name: "AuthLayout",
@@ -58,6 +58,7 @@ export default {
   methods: {
     logout() {
       removeAuthToken();
+      removeAuthUser();
     }
   }
 }
