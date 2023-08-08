@@ -1,24 +1,53 @@
 <template>
-  <v-list>
-    <TodoItem
-      v-for="todo in todos"
-      :key="todo.id"
-      :todo="todo"
-      @remove="removeTodo"
-    />
-  </v-list>
+  <div class="card">
+    <v-data-table
+      :headers="headers"
+      :items="todos"
+      class="card"
+      hide-default-footer
+    >
+      <template #[`item.actions`]="{ item }">
+        <v-btn
+          :loading="btnLoading"
+          color="primary"
+          @click="removeTodo(item.id)"
+          @click.prevent.stop="
+              () => {
+                return false;
+              }
+            "
+        >
+          Delete
+        </v-btn>
+      </template>
+    </v-data-table>
+  </div>
+
 </template>
 
 <script>
-import TodoItem from './TodoItem.vue';
-
 export default {
-  components: {
-    TodoItem,
-  },
-
   data() {
     return {
+      loading: false,
+      btnLoading: false,
+      headers: [
+        {
+          text: 'Id',
+          value: 'id',
+          sortable: true,
+        },
+        {
+          text: 'Text',
+          value: 'text',
+          sortable: false,
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: false,
+        }
+      ],
       todos: [
         {
           id: 1,
@@ -34,14 +63,26 @@ export default {
 
   methods: {
     getTodos() {
+      this.loading = true
       this.$http.get('/todos')
       .then(response => {
         this.todos = response.data.data
       })
+      .finally(() => {
+        this.loading = false
+      })
     },
 
     removeTodo(todoId) {
-      this.$emit('remove', todoId);
+      this.btnLoading = true
+      this.$http.delete('/todos/' + todoId)
+        .then(response => {
+           const index = this.todos.findIndex(el => el.id === todoId)
+           this.todos.splice(index, 1)
+        })
+        .finally(() => {
+          this.btnLoading = false
+        })
     },
   },
 };
